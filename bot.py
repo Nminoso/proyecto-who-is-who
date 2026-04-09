@@ -60,8 +60,8 @@ datos = {
         "Chico pelo azul juega futbol ropa blanca tiene balon",
         "Chico pelirrojo juega baloncesto ropa roja tiene balon",
         "Chica cabello negro juega esqui ropa amarilla usa gorro",
-        "Chica pelirrojo juega baloncesto ropa blanca tiene balon", # FER - BALONCESTO
-        "Chica cabello negro juega golf ropa roja usa gorra lleva palos" # CORI - GOLF CORREGIDA
+        "Chica pelirrojo juega baloncesto ropa blanca tiene balon", # FER CORREGIDA
+        "Chica cabello negro juega golf ropa roja usa gorra lleva palos" # CORI CORREGIDA A GOLF
     ]
 }
 
@@ -138,7 +138,6 @@ async def preguntar_pelo(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def preguntar_deporte(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data['pelo'] = update.message.text
-    # Atletismo eliminado del teclado para mantener congruencia con el dataset
     teclado = [['Baloncesto 🏀', 'Fútbol ⚽', 'Tenis 🎾'], ['Esquí ⛷️', 'Golf ⛳', 'Hockey 🏒'], ['Voleibol 🏐', 'Natación 🏊']]
     markup = ReplyKeyboardMarkup(teclado, resize_keyboard=True, one_time_keyboard=True)
     await update.message.reply_text("3️⃣ ¿Qué **deporte** está practicando?", reply_markup=markup, parse_mode=ParseMode.MARKDOWN)
@@ -282,3 +281,4 @@ if __name__ == '__main__':
             secret_token=WEBHOOK_SECRET, 
             allowed_updates=[Update.MESSAGE]
         )
+        
