@@ -19,13 +19,9 @@ if not TOKEN:
     print("❌ ERROR: Falta el TELEGRAM_TOKEN en el entorno. Apagando...")
     exit(1)
 
-# Configuración base de logs
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
-
-# 🛡️ ESCUDO 1: Silenciar las peticiones HTTP de la librería 'httpx'
 logging.getLogger("httpx").setLevel(logging.WARNING)
 
-# 🛡️ ESCUDO 2: Filtro global para ocultar el token si alguna otra librería intenta imprimirlo
 class TokenRedactorFilter(logging.Filter):
     def filter(self, record):
         msg = record.getMessage()
@@ -34,11 +30,9 @@ class TokenRedactorFilter(logging.Filter):
             record.args = () 
         return True
 
-# Aplicar el filtro a todos los logs
 logger = logging.getLogger()
 for handler in logger.handlers:
     handler.addFilter(TokenRedactorFilter())
-
 
 # --- 2. CONFIGURACIÓN DEL MODELO DE MACHINE LEARNING (TF-IDF) ---
 datos = {
@@ -66,8 +60,8 @@ datos = {
         "Chico pelo azul juega futbol ropa blanca tiene balon",
         "Chico pelirrojo juega baloncesto ropa roja tiene balon",
         "Chica cabello negro juega esqui ropa amarilla usa gorro",
-        "Chica pelirrojo juega voleibol ropa blanca usa cintillo balon",
-        "Chica cabello negro juega golf ropa roja usa gorra y usa visera palos"
+        "Chica pelirrojo juega baloncesto ropa blanca tiene balon", # FER - BALONCESTO
+        "Chica cabello negro juega golf ropa roja usa gorra lleva palos" # CORI - GOLF CORREGIDA
     ]
 }
 
@@ -75,17 +69,23 @@ df = pd.DataFrame(datos)
 vectorizador = TfidfVectorizer()
 matriz_tfidf = vectorizador.fit_transform(df['Descripcion'])
 
-def predecir_personaje_avanzado(descripcion_usuario):
+def predecir_personaje_avanzado(descripcion_usuario, genero_usuario):
     vector_usuario = vectorizador.transform([descripcion_usuario])
     similitudes = cosine_similarity(vector_usuario, matriz_tfidf)[0] 
     
+    # 🛡️ FILTRO HÍBRIDO: Si el género no coincide, anulamos matemáticamente al personaje (-1)
+    for i, desc in enumerate(df['Descripcion']):
+        if not desc.startswith(genero_usuario):
+            similitudes[i] = -1.0
+
     indices_ordenados = similitudes.argsort()[::-1]
     
     top_1_idx = indices_ordenados[0]
     top_1_score = similitudes[top_1_idx]
     top_1_name = df.iloc[top_1_idx]['Personaje']
     
-    if top_1_score >= 0.15:
+    # 🛡️ UMBRAL DE HIERRO: Subido a 65% (0.65)
+    if top_1_score >= 0.65:
         return True, top_1_name, top_1_score
     else:
         top_2_idx = indices_ordenados[1]
@@ -138,6 +138,7 @@ async def preguntar_pelo(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def preguntar_deporte(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data['pelo'] = update.message.text
+    # Atletismo eliminado del teclado para mantener congruencia con el dataset
     teclado = [['Baloncesto 🏀', 'Fútbol ⚽', 'Tenis 🎾'], ['Esquí ⛷️', 'Golf ⛳', 'Hockey 🏒'], ['Voleibol 🏐', 'Natación 🏊']]
     markup = ReplyKeyboardMarkup(teclado, resize_keyboard=True, one_time_keyboard=True)
     await update.message.reply_text("3️⃣ ¿Qué **deporte** está practicando?", reply_markup=markup, parse_mode=ParseMode.MARKDOWN)
@@ -166,7 +167,7 @@ async def procesar_prediccion(update: Update, context: ContextTypes.DEFAULT_TYPE
     
     await update.message.reply_text("🧠 Analizando tus respuestas...", reply_markup=ReplyKeyboardRemove())
     
-    es_confiable, resultado, score = predecir_personaje_avanzado(frase_usuario)
+    es_confiable, resultado, score = predecir_personaje_avanzado(frase_usuario, context.user_data['genero'])
     
     if es_confiable:
         personaje = resultado
