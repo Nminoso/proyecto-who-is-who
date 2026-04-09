@@ -75,8 +75,12 @@ pip install -r requirements.txt
 ```
 TELEGRAM_TOKEN=tu_token_de_telegram_aqui
 ENTORNO=local
+
 # Las siguientes variables son exclusivas para producción (Render)
-URL_RENDER=[https://tu-app.onrender.com](https://tu-app.onrender.com)
-WEBHOOK_SECRET=TuContraseñaSecretaParaWebhook123
+URL_RENDER= Escribe la URL completa que Render te asignó en el paso anterior (ej. https://who-is-who-bot.onrender.com). Asegúrate de no poner / al final.
+WEBHOOK_SECRET=	Inventa una contraseña segura y sin espacios. Esto protege tu bot de peticiones falsas.
+ENTORNO=	Escribe: produccion
+PYTHON_VERSION=	Escribe: 3.11.9 (Esto obliga a Render a usar una versión compatible)
+TELEGRAM_TOKEN= Pega aquí el token de tu bot que te dio @BotFather
 ```
 Nota: Para ejecutar localmente en tu PC, asegúrate de que `ENTORNO=local` para activar el modo Polling.
