@@ -32,7 +32,6 @@ Un bot interactivo para Telegram que reinventa el clásico juego de adivinar per
 - **Python 3.11.x (Recomendado)**
 - Windows, macOS, o Linux.
 - Telegram Bot Token (Obtenido de @BotFather).
-- Groq API Key (Obtenida de Groq Cloud).
 - Cuenta en Render (Opcional, para alojamiento en la nube).
 
 ---
@@ -79,7 +78,7 @@ ENTORNO=local
 # Las siguientes variables son exclusivas para producción (Render)
 URL_RENDER= Escribe la URL completa que Render te asignó en el paso anterior (ej. https://who-is-who-bot.onrender.com). Asegúrate de no poner / al final.
 WEBHOOK_SECRET=	Inventa una contraseña segura y sin espacios. Esto protege tu bot de peticiones falsas.
-ENTORNO=	Escribe: produccion
+ENTORNO= Escribe: produccion
 PYTHON_VERSION=	Escribe: 3.11.9 (Esto obliga a Render a usar una versión compatible)
 TELEGRAM_TOKEN= Pega aquí el token de tu bot que te dio @BotFather
 ```
